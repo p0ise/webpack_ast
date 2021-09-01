@@ -39,6 +39,22 @@ for (let i = 0; i < loader_body.length; i++){
     }
 }
 
+// 修改加载器参数类型
+let loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0] = t.objectExpression([]);
+console.log(loader_arguments);
+// 加载函数体
+// var modular_path = ['app.597640f.js'];
+// console.log(loader_ast.program.body[0].expression.argument.arguments)
+
+// modular_path.forEach(function (item, index) {
+//     var jscode = fs.readFileSync(item, {
+//         encoding: "utf-8"
+//     });
+//
+//     let modular_ast = parser.parse(jscode);
+//     console.log(modular_ast.program.body[0].expression.arguments[0].elements)
+//
+// });
 
 
 let code = generator.default(loader_ast, {

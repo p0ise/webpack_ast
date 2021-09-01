@@ -148,4 +148,4 @@
   }, d.p = "https://h5static.kuwo.cn/www/kw-www/", d.oe = function (e) {
     throw console.error(e), e;
   };
-}([]);
+}({});
