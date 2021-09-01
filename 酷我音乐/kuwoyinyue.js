@@ -28,6 +28,8 @@ var jscode = fs.readFileSync(loader_path, {
 
 // 转换为AST语法树
 let loader_ast = parser.parse(jscode);
+
+// 获取加载器代码
 let loader_body = loader_ast.program.body[0].expression.argument.callee.body.body;
 for (let i = 0; i < loader_body.length; i++){
     if (loader_body[i].type === 'VariableDeclaration'){
