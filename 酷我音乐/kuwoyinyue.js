@@ -64,7 +64,7 @@ modular_path.forEach(function (item, index) {
 loader_ast.program.body.splice(0, 0, t.variableDeclaration("var",[t.variableDeclarator(t.identifier("export_function"))]));
 
 let code = generator.default(loader_ast, {
-    compact: false,  // 压缩格式
+    compact: true,  // 压缩格式
     comments: false,  // 注释
     jsescOption: {
         minimal: false // 转义
