@@ -73,9 +73,4 @@ wtofile('webpack_out.js', 'w', code);
 
 
 
-// var a = export_function(156);
-// var i = export_function.n(a);
-// var t = "1212121212121";
-// var n = i()(t);
-// console.log(n);
 
