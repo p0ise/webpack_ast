@@ -1,24 +1,12 @@
 const parser = require("@babel/parser");
-// 为parser提供模板引擎
-const template = require("@babel/template").default;
-// 遍历AST
-const traverse = require("@babel/traverse").default;
-// 操作节点，比如判断节点类型，生成新的节点等
 const t = require("@babel/types");
-// 将语法树转换为源代码
 const generator = require("@babel/generator");
-// 操作文件
 const fs = require("fs");
 
-//定义公共函数
 function wtofile(path, flags, code) {
     var fd = fs.openSync(path,flags);
     fs.writeSync(fd, code);
     fs.closeSync(fd);
-}
-
-function dtofile(path) {
-    fs.unlinkSync(path);
 }
 
 var loader_path = 'runtime.62249a5.js';
@@ -35,27 +23,45 @@ for (let i = 0; i < loader_body.length; i++){
     if (loader_body[i].type === 'VariableDeclaration'){
         loader_ast.program.body[0].expression.argument.callee.body.body.splice(i+3, (loader_body.length- i-3));
         loader_ast.program.body[0].expression.argument.callee.body.body.splice(0, i);
+        loader_ast.program.body[0].expression.argument.callee.body.body.push(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(loader_ast.program.body[0].expression.argument.callee.body.body[1].id.name)));
         break
     }
 }
 
 // 修改加载器参数类型
 let loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0] = t.objectExpression([]);
-console.log(loader_arguments);
+
 // 加载函数体
-// var modular_path = ['app.597640f.js'];
-// console.log(loader_ast.program.body[0].expression.argument.arguments)
+var modular_path = ['app.597640f.js', 'search.cfd9038.js', 'commons.1e71338.js'];
 
-// modular_path.forEach(function (item, index) {
-//     var jscode = fs.readFileSync(item, {
-//         encoding: "utf-8"
-//     });
-//
-//     let modular_ast = parser.parse(jscode);
-//     console.log(modular_ast.program.body[0].expression.arguments[0].elements)
-//
-// });
+modular_path.forEach(function (item, index) {
+    var jscode = fs.readFileSync(item, {
+        encoding: "utf-8"
+    });
 
+    let modular_ast = parser.parse(jscode);
+    modular_ast.program.body[0].expression.arguments[0].elements.forEach(function (item2, index2) {
+        if (item2.type === 'ArrayExpression'){
+            item2.elements.forEach(function (item3, index3) {
+                if (item3 && item3.type === 'FunctionExpression'){
+                    loader_arguments.properties.push(t.objectProperty(
+                        t.numericLiteral(index3),
+                        item3,
+                        false,
+                        false
+                    ));
+                }
+            });
+        }else {
+            item2.properties.forEach(function (item3, index3) {
+                loader_arguments.properties.push(item3)
+            })
+        }
+    });
+});
+
+// 申请全局导出函数
+loader_ast.program.body.splice(0, 0, t.variableDeclaration("var",[t.variableDeclarator(t.identifier("export_function"))]));
 
 let code = generator.default(loader_ast, {
     compact: false,  // 压缩格式
@@ -66,8 +72,5 @@ let code = generator.default(loader_ast, {
 }).code;
 wtofile('webpack_out.js', 'w', code);
 
-// loader_ast.program.body[0].expression.argument.callee.body.body.forEach(function (item, index) {
-//     console.log(item.type)
-// });
 
 
