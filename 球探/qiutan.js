@@ -9,7 +9,7 @@ function wtofile(path, flags, code) {
     fs.closeSync(fd);
 }
 
-var loader_path = 'runtime.62249a5.js';
+var loader_path = 'ffa43f3bc74cf5925a35.js';
 var jscode = fs.readFileSync(loader_path, {
     encoding: "utf-8"
 });
@@ -32,13 +32,12 @@ for (let i = 0; i < loader_body.length; i++){
 let loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0] = t.objectExpression([]);
 
 // 加载函数体
-var modular_path = ['app.597640f.js', 'search.cfd9038.js', 'commons.1e71338.js'];
+var modular_path = ['42eea894c639c8655feb.js', '01b18bd4edbfc16a1f2a.js', '52f1b607ac09687a535a.js', 'ae003ad8d6cbf21f404b.js', 'b91e54701379309c0e11.js'];
 
 modular_path.forEach(function (item, index) {
     var jscode = fs.readFileSync(item, {
         encoding: "utf-8"
     });
-
     let modular_ast = parser.parse(jscode);
     modular_ast.program.body[0].expression.arguments[0].elements.forEach(function (item2, index2) {
         if (item2.type === 'ArrayExpression'){
@@ -64,7 +63,7 @@ modular_path.forEach(function (item, index) {
 loader_ast.program.body.splice(0, 0, t.variableDeclaration("var",[t.variableDeclarator(t.identifier("export_function"))]));
 
 let code = generator.default(loader_ast, {
-    compact: true,  // 压缩格式
+    compact: false,  // 压缩格式
     comments: false,  // 注释
     jsescOption: {
         minimal: false // 转义
@@ -74,6 +73,9 @@ wtofile('webpack_out.js', 'w', code);
 
 
 
-
-
+// var a = export_function(156);
+// var i = export_function.n(a);
+// var t = "1212121212121";
+// var n = i()(t);
+// console.log(n);
 
