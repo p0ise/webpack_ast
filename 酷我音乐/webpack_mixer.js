@@ -18,20 +18,44 @@ function run(loader_path, out_path, modular_path) {
     let loader_ast = parser.parse(js_code);
 
     // 获取加载器代码
-    let loader_body = loader_ast.program.body[0].expression.argument.callee.body.body;
+    let loader_body;
+    if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
+        loader_body = loader_ast.program.body[0].expression.argument.callee.body.body;
+    }else{
+        loader_body = loader_ast.program.body[0].expression.callee.body.body;
+    }
     for (let i = 0; i < loader_body.length; i++){
         if (loader_body[i].type === 'VariableDeclaration'){
-            loader_ast.program.body[0].expression.argument.callee.body.body.splice(i+3, (loader_body.length- i-3));
-            loader_ast.program.body[0].expression.argument.callee.body.body.splice(0, i);
-            loader_ast.program.body[0].expression.argument.callee.body.body.push(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(loader_ast.program.body[0].expression.argument.callee.body.body[1].id.name)));
-            break
+            let j = i + 1;
+            while (j < loader_body.length){
+                if (loader_body[j].type === 'VariableDeclaration'){
+                    loader_body.splice(j, (loader_body.length - j));
+                    loader_body.splice(0, i);
+                    let tempname = '';
+                    loader_body.forEach(function (item, index) {
+                        if (item.type === 'FunctionDeclaration'){
+                            tempname = item.id.name;
+                        }
+                    });
+                    loader_body.push(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(tempname)));
+                }else {
+                    j++;
+                }
+            }
+            break;
         }
     }
 
     // 导入加载器中的函数体
-    if (loader_ast.program.body[0].expression.argument.arguments[0].type === 'ArrayExpression'){
+    let loader_arguments;
+    if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
+        loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0];
+    }else{
+        loader_arguments = loader_ast.program.body[0].expression.arguments[0];
+    }
+    if (loader_arguments.type === 'ArrayExpression'){
         let tempobjectexpression = t.objectExpression([]);
-        loader_ast.program.body[0].expression.argument.arguments[0].elements.forEach(function (item, index) {
+        loader_arguments.elements.forEach(function (item, index) {
             if (item && item.type === 'FunctionExpression'){
                 tempobjectexpression.properties.push(t.objectProperty(
                     t.numericLiteral(index),
@@ -41,11 +65,12 @@ function run(loader_path, out_path, modular_path) {
                 ));
             }
         });
-        loader_ast.program.body[0].expression.argument.arguments[0] = tempobjectexpression;
+        loader_arguments = tempobjectexpression;
     }
 
     // 加载外部函数体
     modular_path.forEach(function (item, index) {
+
         var jscode = fs.readFileSync(item, {
             encoding: "utf-8"
         });
@@ -70,6 +95,11 @@ function run(loader_path, out_path, modular_path) {
             }
         });
     });
+    if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
+        loader_ast.program.body[0].expression.argument.arguments[0] = loader_arguments;
+    }else{
+        loader_ast.program.body[0].expression.arguments[0] = loader_arguments;
+    }
 
     // 申请全局导出函数
     loader_ast.program.body.splice(0, 0, t.variableDeclaration("var",[t.variableDeclarator(t.identifier("export_function"))]));
