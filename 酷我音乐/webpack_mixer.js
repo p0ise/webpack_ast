@@ -28,10 +28,23 @@ function run(loader_path, out_path, modular_path) {
         }
     }
 
-    // 修改加载器参数类型
-    let loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0] = t.objectExpression([]);
+    // 导入加载器中的函数体
+    if (loader_ast.program.body[0].expression.argument.arguments[0].type === 'ArrayExpression'){
+        let tempobjectexpression = t.objectExpression([]);
+        loader_ast.program.body[0].expression.argument.arguments[0].elements.forEach(function (item, index) {
+            if (item && item.type === 'FunctionExpression'){
+                tempobjectexpression.properties.push(t.objectProperty(
+                    t.numericLiteral(index),
+                    item,
+                    false,
+                    false
+                ));
+            }
+        });
+        loader_ast.program.body[0].expression.argument.arguments[0] = tempobjectexpression;
+    }
 
-    // 加载函数体
+    // 加载外部函数体
     modular_path.forEach(function (item, index) {
         var jscode = fs.readFileSync(item, {
             encoding: "utf-8"
@@ -64,7 +77,7 @@ function run(loader_path, out_path, modular_path) {
     loader_ast.program.body.push(t.expressionStatement(t.assignmentExpression("=", t.memberExpression(t.identifier("module"), t.identifier("exports"), false), t.identifier("export_function"))));
 
     let code = generator.default(loader_ast, {
-        compact: true,  // 压缩格式
+        compact: false,  // 压缩格式
         comments: false,  // 注释
         jsescOption: {
             minimal: false // 转义
@@ -88,7 +101,7 @@ function run(loader_path, out_path, modular_path) {
             i += 1;
         }
     }
-    if (loader_path && out_path && modular_path.length > 0){
+    if (loader_path && out_path){
         run(loader_path, out_path, modular_path)
     }
 }();
