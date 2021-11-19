@@ -14,10 +14,6 @@ document.domain = "iqiyi.com";
 
 const t = require('./webpack_out');
 
-delete process;
-delete require;
-// delete global;
-module = undefined;
 
 let dutO = t('295');
 console.log(dutO.cmd5x("/dash/asd"));
