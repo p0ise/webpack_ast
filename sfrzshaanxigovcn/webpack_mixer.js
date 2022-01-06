@@ -28,7 +28,7 @@ function run(loader_path, out_path, modular_path) {
     let export_function = null;
     traverse(loader_ast, {
         FunctionDeclaration(path){
-            if(path.toString().includes("exports:")){
+            if(path.toString().includes("exports:") && export_function == null){
                 export_function = path.node.id.name
             }
         }
@@ -40,7 +40,7 @@ function run(loader_path, out_path, modular_path) {
     for (let i = 0; i < loader_body.length; i++){
         let item = loader_body[i];
         if(item.type === 'ExpressionStatement'){
-            if(item.expression.type === 'SequenceExpression' && item.expression.expressions[0].left.type === 'MemberExpression' && item.expression.expressions[0].left.object.type === 'Identifier' && item.expression.expressions[0].left.object.name === export_function){
+            if(item.expression.type === 'SequenceExpression' && item.expression.expressions[0].type === 'AssignmentExpression' && item.expression.expressions[0].left.type === 'MemberExpression' && item.expression.expressions[0].left.object.type === 'Identifier' && item.expression.expressions[0].left.object.name === export_function){
                 let j = 1;
                 while (j < item.expression.expressions.length){
                     let item2 = item.expression.expressions[j];

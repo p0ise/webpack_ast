@@ -143,11 +143,6 @@ function run(loader_path, out_path, modular_path) {
 !function () {
     let loader_path, out_path;
     let modular_path = [];
-    process.argv.push("webpack_mixer.js");
-    process.argv.push("-l");
-    process.argv.push("home.min.js");
-    process.argv.push("-o");
-    process.argv.push("webpack_out.js");
     for(let i = 0; i < process.argv.length; i++){
         if (process.argv[i] === '-l'){
             loader_path = process.argv[i + 1];
