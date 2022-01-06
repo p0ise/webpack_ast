@@ -1,5 +1,28 @@
 var export_function;
 !function (e) {
+  function n(data) {
+    for (var n, t, d = data[0], l = data[1], f = data[2], i = 0, m = []; i < d.length; i++) t = d[i], Object.prototype.hasOwnProperty.call(o, t) && o[t] && m.push(o[t][0]), o[t] = 0;
+
+    for (n in l) Object.prototype.hasOwnProperty.call(l, n) && (e[n] = l[n]);
+
+    for (h && h(data); m.length;) m.shift()();
+
+    return c.push.apply(c, f || []), r();
+  }
+
+  function r() {
+    for (var e, i = 0; i < c.length; i++) {
+      for (var n = c[i], r = !0, t = 1; t < n.length; t++) {
+        var l = n[t];
+        0 !== o[l] && (r = !1);
+      }
+
+      r && (c.splice(i--, 1), e = d(d.s = n[0]));
+    }
+
+    return e;
+  }
+
   var t = {},
       o = {
     31: 0
@@ -149,7 +172,7 @@ var export_function;
   }, d.p = "https://h5static.kuwo.cn/www/kw-www/", d.oe = function (e) {
     throw console.error(e), e;
   };
-  export_function = d
+  export_function = d;
 }({
   0: function (t, e, n) {
     "use strict";

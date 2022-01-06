@@ -1,6 +1,7 @@
 const parser = require("@babel/parser");
 const t = require("@babel/types");
 const generator = require("@babel/generator");
+const traverse = require("@babel/traverse").default;
 const fs = require("fs");
 
 function wtofile(path, flags, code) {
@@ -24,25 +25,48 @@ function run(loader_path, out_path, modular_path) {
     }else{
         loader_body = loader_ast.program.body[0].expression.callee.body.body;
     }
+    let export_function = null;
+    traverse(loader_ast, {
+        FunctionDeclaration(path){
+            if(path.toString().includes("exports:")){
+                export_function = path.node.id.name
+            }
+        }
+    });
+    if(export_function == null){
+        throw "未找到导出函数错误"
+    }
+
     for (let i = 0; i < loader_body.length; i++){
-        if (loader_body[i].type === 'VariableDeclaration'){
-            let j = i + 1;
-            while (j < loader_body.length){
-                if (loader_body[j].type === 'VariableDeclaration'){
-                    loader_body.splice(j, (loader_body.length - j));
-                    loader_body.splice(0, i);
-                    let tempname = '';
-                    loader_body.forEach(function (item, index) {
-                        if (item.type === 'FunctionDeclaration'){
-                            tempname = item.id.name;
-                        }
-                    });
-                    loader_body.push(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(tempname)));
-                }else {
-                    j++;
+        let item = loader_body[i];
+        if(item.type === 'ExpressionStatement'){
+            if(item.expression.type === 'SequenceExpression' && item.expression.expressions[0].left.type === 'MemberExpression' && item.expression.expressions[0].left.object.type === 'Identifier' && item.expression.expressions[0].left.object.name === export_function){
+                let j = 1;
+                while (j < item.expression.expressions.length){
+                    let item2 = item.expression.expressions[j];
+                    if(item2.left &&item2.left.type === 'MemberExpression' && item2.left.object.type === 'Identifier' && item2.left.object.name === export_function){
+                        j++
+                    }else{
+                        item.expression.expressions.splice(j, item.expression.expressions.length - j);
+                        break
+                    }
+                }
+                loader_body.splice(i + 1, loader_body.length - i - 1);
+                loader_body.push(t.expressionStatement(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(export_function))));
+            }
+        }else if(item.type === 'ReturnStatement'){
+            loader_body[i] = t.expressionStatement(item.argument);
+            let j = 0;
+            while (j < loader_body[i].expression.expressions.length){
+                let item2 = loader_body[i].expression.expressions[j];
+                if(item2.left &&item2.left.type === 'MemberExpression' && item2.left.object.type === 'Identifier' && item2.left.object.name === export_function){
+                    j++
+                }else{
+                    loader_body[i].expression.expressions.splice(j, loader_body[i].expression.expressions.length - j);
+                    break
                 }
             }
-            break;
+            loader_body.push(t.expressionStatement(t.assignmentExpression("=", t.identifier("export_function"), t.identifier(export_function))));
         }
     }
 
