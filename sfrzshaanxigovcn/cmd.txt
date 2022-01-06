@@ -1,1 +1,1 @@
-node webpack_mixer.js -l app.f24d08e9.js -m login.5170f665.js -o webpack_out.js
+node webpack_mixer.js -l app.f24d08e9.js -m login.5170f665.js -m chunk-vendors.bb13f90f.js -o webpack_out.js
