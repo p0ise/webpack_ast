@@ -1,7 +1,7 @@
 /*! Copyright (c) 2022 WhatsApp Inc. All Rights Reserved. */
-(()=>{
+((b)=>{
     "use strict";
-    var e, a, c, l, o, s, d, b = {}, t = {};
+    var e, a, c, l, o, s, d, t = {};
     function f(e) {
         var a = t[e];
         if (void 0 !== a)
@@ -689,5 +689,5 @@
     }
     )()
 }
-)();
+)({});
 //# sourceMappingURL=https://web.whatsapp.com/runtime.91a58a189a5093ecc0b0.js.map

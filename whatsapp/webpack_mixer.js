@@ -71,26 +71,26 @@ function run(loader_path, out_path, modular_path) {
     }
 
     // 导入加载器中的函数体
-    // let loader_arguments;
-    // if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
-    //     loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0];
-    // }else{
-    //     loader_arguments = loader_ast.program.body[0].expression.arguments[0];
-    // }
-    // if (loader_arguments.type === 'ArrayExpression'){
-    //     let tempobjectexpression = t.objectExpression([]);
-    //     loader_arguments.elements.forEach(function (item, index) {
-    //         if (item && item.type === 'FunctionExpression'){
-    //             tempobjectexpression.properties.push(t.objectProperty(
-    //                 t.numericLiteral(index),
-    //                 item,
-    //                 false,
-    //                 false
-    //             ));
-    //         }
-    //     });
-    //     loader_arguments = tempobjectexpression;
-    // }
+    let loader_arguments;
+    if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
+        loader_arguments = loader_ast.program.body[0].expression.argument.arguments[0];
+    }else{
+        loader_arguments = loader_ast.program.body[0].expression.arguments[0];
+    }
+    if (loader_arguments.type === 'ArrayExpression'){
+        let tempobjectexpression = t.objectExpression([]);
+        loader_arguments.elements.forEach(function (item, index) {
+            if (item && item.type === 'FunctionExpression'){
+                tempobjectexpression.properties.push(t.objectProperty(
+                    t.numericLiteral(index),
+                    item,
+                    false,
+                    false
+                ));
+            }
+        });
+        loader_arguments = tempobjectexpression;
+    }
 
     // 加载外部函数体
     modular_path.forEach(function (item, index) {
@@ -119,11 +119,11 @@ function run(loader_path, out_path, modular_path) {
             }
         });
     });
-    // if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
-    //     loader_ast.program.body[0].expression.argument.arguments[0] = loader_arguments;
-    // }else{
-    //     loader_ast.program.body[0].expression.arguments[0] = loader_arguments;
-    // }
+    if (loader_ast.program.body[0].expression.type === 'UnaryExpression'){
+        loader_ast.program.body[0].expression.argument.arguments[0] = loader_arguments;
+    }else{
+        loader_ast.program.body[0].expression.arguments[0] = loader_arguments;
+    }
 
     // 申请全局导出函数
     loader_ast.program.body.splice(0, 0, t.variableDeclaration("var",[t.variableDeclarator(t.identifier("export_function"))]));
@@ -140,11 +140,13 @@ function run(loader_path, out_path, modular_path) {
     wtofile(out_path, 'w', code);
 }
 
-process.argv.push('-l');
-process.argv.push('runtime.js');
-process.argv.push('-o');
-process.argv.push('webpack_out.js');
-console.log(process.argv);
+// process.argv.push('-l');
+// process.argv.push('runtime.js');
+// process.argv.push('-m');
+// process.argv.push('bootstrap_main.js');
+// process.argv.push('-o');
+// process.argv.push('webpack_out.js');
+// console.log(process.argv);
 
 !function () {
     let loader_path, out_path;
