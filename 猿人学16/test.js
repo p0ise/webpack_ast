@@ -20,6 +20,9 @@ try{
 
 n(58); // 初始化 request
 
-page = 1;
-request();
+for (page = 1; page < 4; page++) {
+    request();
+}
+
+
 
