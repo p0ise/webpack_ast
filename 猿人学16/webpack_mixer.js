@@ -131,7 +131,7 @@ function run(loader_path, out_path, modular_path) {
     loader_ast.program.body.push(t.expressionStatement(t.assignmentExpression("=", t.memberExpression(t.identifier("module"), t.identifier("exports"), false), t.identifier("export_function"))));
 
     let code = generator.default(loader_ast, {
-        compact: false,  // 压缩格式
+        compact: true,  // 压缩格式
         comments: false,  // 注释
         jsescOption: {
             minimal: false // 转义
